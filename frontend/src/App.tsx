@@ -128,10 +128,12 @@ export default function App() {
   const handleNewFile = async (name: string) => {
     if (store.currentProjectId === null) return
     closeModal()
+    // 不带扩展名时默认创建 markdown 文件（自动补 .md）
+    const final = name.includes('.') ? name : `${name}.md`
     try {
-      await api.createFile(`${store.currentProjectId}/${name}`)
+      await api.createFile(`${store.currentProjectId}/${final}`)
       await refreshTree()
-      await openFile(name)
+      await openFile(final)
     } catch (e) {
       window.alert(`新建失败：${String(e)}`)
     }
@@ -530,8 +532,8 @@ export default function App() {
       <ModalInput
         open={modal?.kind === 'newFile'}
         title="新建文件"
-        label="文件名（含扩展名，如 prompt.md）"
-        placeholder="prompt.md"
+        label="文件名（不填扩展名时自动加 .md）"
+        placeholder="prompt"
         confirmText="创建"
         onConfirm={handleNewFile}
         onClose={closeModal}
