@@ -637,8 +637,6 @@ a.login-btn {
   align-items: center;
   gap: 8px;
   margin-top: 18px;
-  position: sticky;
-  bottom: -20px;
   background: var(--bg-panel);
   border-top: 1px solid var(--border);
   padding: 14px 0 4px;
