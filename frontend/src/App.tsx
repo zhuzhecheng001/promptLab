@@ -474,7 +474,19 @@ export default function App() {
                 <div className="doc-empty">加载中…</div>
               ) : docContent ? (
                 <div className="doc-markdown">
-                  <ReactMarkdown>{docContent}</ReactMarkdown>
+                  <ReactMarkdown
+                    components={{
+                      img: ({ src, alt }) => (
+                        <img
+                          src={src?.startsWith('/avatars/') ? `https://zhecheng.fun${src}` : src}
+                          alt={alt}
+                          style={{ maxWidth: '100%', borderRadius: 8, margin: '8px 0' }}
+                        />
+                      ),
+                    }}
+                  >
+                    {docContent}
+                  </ReactMarkdown>
                 </div>
               ) : (
                 <div className="doc-empty">文档整理中，敬请期待…</div>
