@@ -29,6 +29,35 @@ export default function App() {
   const [docOpen, setDocOpen] = useState(false)
   const [docContent, setDocContent] = useState('')
   const [docLoading, setDocLoading] = useState(false)
+  // 模型是否已配置（决定对话框提示是否显示"需先配置模型"）
+  const [modelReady, setModelReady] = useState({ builder: false, runner: false })
+
+  // 登录后 / 关闭设置弹窗后刷新模型配置状态
+  useEffect(() => {
+    if (!store.user || store.settingsOpen) return
+    let alive = true
+    const load = (name: string) =>
+      api.getSetting(name).catch(() => ({ configured: false }))
+    Promise.all([
+      load('author_api'),
+      load('builder_model'),
+      load('runner_model'),
+      load('builder_use_author'),
+      load('runner_use_author'),
+    ]).then(([author, bm, rm, bua, rua]) => {
+      if (!alive) return
+      const useAuthorB = (author as any).configured && (bua as any).use_author
+      const useAuthorR = (author as any).configured && (rua as any).use_author
+      setModelReady({
+        builder: !!useAuthorB || !!(bm as any).configured,
+        runner: !!useAuthorR || !!(rm as any).configured,
+      })
+    })
+    return () => {
+      alive = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store.user, store.settingsOpen])
 
   // 打开使用文档时实时从主站加载（后台编辑后刷新即见）
   useEffect(() => {
@@ -433,7 +462,7 @@ export default function App() {
             messages={store.builderMessages}
             streaming={store.builderStreaming}
             onSend={sendBuilder}
-            hint="让工匠帮你写 SKILL.md（需先配置模型）"
+            hint={modelReady.builder ? '让工匠帮你写 SKILL.md' : '让工匠帮你写 SKILL.md（需先配置模型）'}
             saveAction={{
               label: `写入 ${store.currentFilePath?.split('/').pop() ?? 'SKILL.md'}`,
               onClick: saveBuilderReplyToSkill,
@@ -450,7 +479,7 @@ export default function App() {
             messages={store.runnerMessages}
             streaming={store.runnerStreaming}
             onSend={sendRunner}
-            hint="让执行者按当前 skill 回答（需先配置模型）"
+            hint={modelReady.runner ? '让执行者按当前 skill 回答' : '让执行者按当前 skill 回答（需先配置模型）'}
             assistantName={
               store.projects.find((p) => p.id === store.currentProjectId)?.name ?? '测试台'
             }
