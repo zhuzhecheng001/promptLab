@@ -605,21 +605,48 @@ a.login-btn {
 .checkbox-row {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   font-size: 13px;
   color: var(--text);
   cursor: pointer;
   margin-top: 9px;
+  user-select: none;
 }
 .checkbox-row input {
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-  accent-color: var(--accent);
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.cb-box {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #3f4c63;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  background: #10141c;
+  transition: all 0.15s;
+}
+.cb-box svg {
+  width: 11px;
+  height: 11px;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.checkbox-row input:checked ~ .cb-box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.checkbox-row input:checked ~ .cb-box svg {
+  opacity: 1;
+}
+.checkbox-row:hover .cb-box {
+  border-color: var(--accent);
 }
 .modal label {
   font-size: 12px;

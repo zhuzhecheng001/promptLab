@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { KeyRound } from 'lucide-react'
+import { Check, KeyRound } from 'lucide-react'
 import { api } from '../api'
 import type { ModelConfig } from '../types'
 
@@ -108,6 +108,9 @@ export default function SettingsModal({ open, onClose }: Props) {
             checked={builderUseAuthor}
             onChange={(e) => setBuilderUseAuthor(e.target.checked)}
           />
+          <span className="cb-box">
+            <Check size={11} />
+          </span>
           借用作者的 API
         </label>
         <div className="modal-hint">
@@ -125,6 +128,9 @@ export default function SettingsModal({ open, onClose }: Props) {
             checked={runnerUseAuthor}
             onChange={(e) => setRunnerUseAuthor(e.target.checked)}
           />
+          <span className="cb-box">
+            <Check size={11} />
+          </span>
           借用作者的 API
         </label>
         <div className="modal-hint">
