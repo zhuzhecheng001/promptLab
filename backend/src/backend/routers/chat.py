@@ -49,12 +49,14 @@ def _load_model_config(user_id: int, name: str, use_author: bool = False) -> dic
 
 
 def _project_files(project_id: int) -> tuple[str, str]:
-    """读取项目的 SKILL.md 与规范文档。"""
+    """读取项目的 SKILL.md 与规范文档（新项目规范文档在 assets/，兼容旧项目根目录）。"""
     base = PROJECTS_DIR / str(project_id)
     skill_md = ""
     spec_md = ""
     skill_path = base / "SKILL.md"
-    spec_path = base / "规范文档.md"
+    spec_path = base / "assets" / "规范文档.md"
+    if not spec_path.exists():
+        spec_path = base / "规范文档.md"  # 兼容旧项目结构
     if skill_path.exists():
         skill_md = skill_path.read_text(encoding="utf-8")
     if spec_path.exists():

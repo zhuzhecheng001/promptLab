@@ -4,6 +4,7 @@ import io
 import shutil
 import urllib.parse
 import zipfile
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -40,6 +41,19 @@ def _owner(user: dict) -> int:
     return int(user["id"])
 
 
+def _write_defaults(base: Path, files: dict) -> None:
+    """递归写出项目骨架（文件/目录/嵌套目录）。"""
+    for filename, content in files.items():
+        target = base / filename
+        if content is None:
+            target.mkdir(exist_ok=True)
+        elif isinstance(content, dict):
+            target.mkdir(exist_ok=True)
+            _write_defaults(target, content)
+        else:
+            target.write_text(content, encoding="utf-8")
+
+
 @router.post("")
 def create_project_ep(body: ProjectCreate, user: dict = Depends(get_current_user)) -> dict:
     """新建项目：创建目录骨架 + 数据库记录。"""
@@ -50,11 +64,7 @@ def create_project_ep(body: ProjectCreate, user: dict = Depends(get_current_user
     project_id = create_project(uid, name)
     project_dir = PROJECTS_DIR / str(project_id)
     project_dir.mkdir(parents=True, exist_ok=True)
-    for filename, content in DEFAULT_FILES.items():
-        if content is None:
-            (project_dir / filename).mkdir(exist_ok=True)
-        else:
-            (project_dir / filename).write_text(content, encoding="utf-8")
+    _write_defaults(project_dir, DEFAULT_FILES)
     return {"id": project_id, "name": name}
 
 
