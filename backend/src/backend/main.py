@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.db import init_db
-from backend.routers import auth, chat, files, projects, settings, test_cases
+from backend.routers import auth, chat, files, projects, settings, site, test_cases
 
 app = FastAPI(
     title="PromptLab Backend",
@@ -29,6 +29,7 @@ app.include_router(files.router)
 app.include_router(settings.router)
 app.include_router(chat.router)
 app.include_router(test_cases.router)
+app.include_router(site.router)
 
 
 @app.get("/api/health")

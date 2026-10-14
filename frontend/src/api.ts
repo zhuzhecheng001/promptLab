@@ -97,6 +97,11 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ use_author: useAuthor }),
     }).then((r) => j<{ saved: boolean }>(r)),
+
+  siteDoc: () =>
+    fetch(`${BASE}/api/site-doc`).then((r) =>
+      j<{ content: string; published: boolean; updated_at: string }>(r),
+    ),
 }
 
 export interface StreamHandlers {

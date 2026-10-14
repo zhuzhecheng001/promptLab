@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { BookOpen, ExternalLink, Hammer, Info, Settings } from 'lucide-react'
 import { api, streamChat } from './api'
 import { useAppStore } from './store'
@@ -26,6 +27,19 @@ export default function App() {
   const [modal, setModal] = useState<ModalState>(null)
   const [aboutOpen, setAboutOpen] = useState(false)
   const [docOpen, setDocOpen] = useState(false)
+  const [docContent, setDocContent] = useState('')
+  const [docLoading, setDocLoading] = useState(false)
+
+  // 打开使用文档时实时从主站加载（后台编辑后刷新即见）
+  useEffect(() => {
+    if (!docOpen) return
+    setDocLoading(true)
+    api
+      .siteDoc()
+      .then((d) => setDocContent(d.published ? d.content : ''))
+      .catch(() => setDocContent(''))
+      .finally(() => setDocLoading(false))
+  }, [docOpen])
 
   useEffect(() => {
     // 先验证登录态，成功后再加载项目
@@ -456,7 +470,15 @@ export default function App() {
               使用文档
             </h3>
             <div className="doc-body">
-              <div className="doc-empty">文档整理中，敬请期待…</div>
+              {docLoading ? (
+                <div className="doc-empty">加载中…</div>
+              ) : docContent ? (
+                <div className="doc-markdown">
+                  <ReactMarkdown>{docContent}</ReactMarkdown>
+                </div>
+              ) : (
+                <div className="doc-empty">文档整理中，敬请期待…</div>
+              )}
             </div>
             <div className="modal-actions">
               <button onClick={() => setDocOpen(false)}>关闭</button>
