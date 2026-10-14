@@ -166,6 +166,21 @@ button:disabled {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.topbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 4px 9px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.topbar-back:hover {
+  color: var(--accent);
+  background: rgba(91, 140, 255, 0.1);
+}
 
 /* ---------- 登录门 ---------- */
 .login-gate {

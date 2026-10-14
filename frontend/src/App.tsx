@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Hammer, LogOut, Plus, Settings } from 'lucide-react'
+import { ExternalLink, Hammer, Plus, Settings } from 'lucide-react'
 import { api, streamChat } from './api'
 import { useAppStore } from './store'
 import FileTree from './components/FileTree'
@@ -308,15 +308,6 @@ export default function App() {
     }
   }
 
-  const handleLogout = async () => {
-    try {
-      await api.logout()
-    } catch {
-      // 忽略退出接口错误，直接刷新回登录门
-    }
-    location.reload()
-  }
-
   return store.user === null ? (
     <LoginGate />
   ) : (
@@ -343,9 +334,16 @@ export default function App() {
         </span>
         <div className="topbar-user">
           <span className="user-name">{store.user?.nickname || store.user?.username}</span>
-          <button onClick={handleLogout} title="退出登录">
-            <LogOut size={13} />
-          </button>
+          <a
+            className="topbar-back"
+            href="https://zhecheng.fun"
+            target="_blank"
+            rel="noreferrer"
+            title="返回主站"
+          >
+            <ExternalLink size={13} />
+            返回主站
+          </a>
         </div>
       </div>
       <div className="main">
