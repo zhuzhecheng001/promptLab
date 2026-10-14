@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { Loader2, Send } from 'lucide-react'
+import { Loader2, Plus, Send } from 'lucide-react'
 import type { Message } from '../types'
 
 interface Props {
@@ -12,8 +12,27 @@ interface Props {
   onSend: (text: string) => void
   hint?: string
   saveAction?: { label: string; onClick: (content: string) => void }
+  addToFile?: { name: string; onAdd: (content: string) => void }
   guideFile?: string | null
   assistantName?: string
+}
+
+/** 把一段 markdown 按代码块 / 空行切分成可单独加入的段落 */
+function splitMarkdown(src: string): string[] {
+  const out: string[] = []
+  const parts = src.split(/(```[\s\S]*?```)/g)
+  for (const p of parts) {
+    if (!p.trim()) continue
+    if (p.startsWith('```')) {
+      out.push(p.trim())
+    } else {
+      for (const seg of p.split(/\n\s*\n/)) {
+        const t = seg.trim()
+        if (t) out.push(t)
+      }
+    }
+  }
+  return out
 }
 
 export default function ChatPanel({
@@ -25,6 +44,7 @@ export default function ChatPanel({
   onSend,
   hint,
   saveAction,
+  addToFile,
   guideFile,
   assistantName,
 }: Props) {
@@ -74,7 +94,25 @@ export default function ChatPanel({
               </div>
               <div className="msg-content" style={m.error ? { color: '#f87171' } : undefined}>
                 {m.role === 'assistant' && !m.error ? (
-                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                  addToFile ? (
+                    <div className="msg-segs">
+                      {splitMarkdown(m.content).map((blk, j) => (
+                        <div className="msg-seg" key={j}>
+                          <ReactMarkdown>{blk}</ReactMarkdown>
+                          <button
+                            className="seg-add-btn"
+                            onClick={() => addToFile.onAdd(blk)}
+                            title={`把这段加入 ${addToFile.name}（追加到末尾）`}
+                          >
+                            <Plus size={11} />
+                            加入 {addToFile.name}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <ReactMarkdown>{m.content}</ReactMarkdown>
+                  )
                 ) : (
                   m.content
                 )}

@@ -7,6 +7,7 @@ interface Props {
   fileTree: FileNode[]
   onSelectProject: (id: number) => void
   onSelectFile: (path: string) => void
+  onNewProject: () => void
   onNewFile: () => void
   onRename: (path: string) => void
   onDelete: (path: string) => void
@@ -62,6 +63,7 @@ export default function FileTree({
   fileTree,
   onSelectProject,
   onSelectFile,
+  onNewProject,
   onNewFile,
   onRename,
   onDelete,
@@ -71,10 +73,15 @@ export default function FileTree({
 }: Props) {
   return (
     <div className="sidebar">
-      <div className="sidebar-title">项目</div>
+      <div className="sidebar-title">
+        项目
+        <button className="new-file-btn" title="新建项目" onClick={onNewProject}>
+          <Plus size={13} />
+        </button>
+      </div>
       {projects.length === 0 && (
         <div className="file-item" style={{ color: 'var(--text-faint)' }}>
-          暂无项目，点上方"新建项目"
+          暂无项目，点上方"+"新建
         </div>
       )}
       {projects.map((p) => (

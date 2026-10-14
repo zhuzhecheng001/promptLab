@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ExternalLink, Hammer, Plus, Settings } from 'lucide-react'
+import { ExternalLink, Hammer, Info, Settings } from 'lucide-react'
 import { api, streamChat } from './api'
 import { useAppStore } from './store'
 import FileTree from './components/FileTree'
@@ -9,6 +9,8 @@ import SettingsModal from './components/SettingsModal'
 import ModalInput from './components/ModalInput'
 import ModalConfirm from './components/ModalConfirm'
 import LoginGate from './components/LoginGate'
+
+const APP_VERSION = 'v0.1.0'
 
 type ModalState =
   | { kind: 'newProject' }
@@ -22,6 +24,7 @@ type ModalState =
 export default function App() {
   const store = useAppStore()
   const [modal, setModal] = useState<ModalState>(null)
+  const [aboutOpen, setAboutOpen] = useState(false)
 
   useEffect(() => {
     // 先验证登录态，成功后再加载项目
@@ -296,13 +299,42 @@ export default function App() {
     // 优先提取 ```markdown 代码块，没有则整段写入
     const m = content.match(/```markdown\s*([\s\S]*?)```/)
     const toWrite = (m ? m[1] : content).trim()
-    const path = `${store.currentProjectId}/SKILL.md`
+    const path = store.currentFilePath ?? `${store.currentProjectId}/SKILL.md`
     try {
       await api.writeFile(path, toWrite)
       store.markSaved()
       const f = await api.readFile(path)
       store.setCurrentFile(f.path, f.content)
-      window.alert('已写入 SKILL.md，可在编辑器查看/修改，测试台将使用最新内容')
+      window.alert(`已写入 ${path.split('/').pop()}，可在编辑器查看/修改，测试台将使用最新内容`)
+    } catch (e) {
+      window.alert(`写入失败：${String(e)}`)
+    }
+  }
+
+  const addSegmentToFile = async (content: string) => {
+    if (!store.currentProjectId) return
+    const path = store.currentFilePath ?? `${store.currentProjectId}/SKILL.md`
+    try {
+      let existing = ''
+      try {
+        existing = (await api.readFile(path)).content
+      } catch {
+        // 文件不存在：视为新建
+      }
+      const toWrite = existing
+        ? `${existing.trimEnd()}\n\n${content.trim()}\n`
+        : `${content.trim()}\n`
+      await api.writeFile(path, toWrite)
+      store.markSaved()
+      const f = await api.readFile(path)
+      store.setCurrentFile(f.path, f.content)
+      // skill 变化：测试台开新会话，避免旧上下文干扰
+      store.setRunnerConvId(null)
+      store.setRunnerMessages([
+        ...store.runnerMessages,
+        { role: 'system', content: `skill 已更新（${path}），本轮对话使用新会话` },
+      ])
+      window.alert(`已加入 ${path.split('/').pop()}（追加到末尾），可在编辑器查看`)
     } catch (e) {
       window.alert(`写入失败：${String(e)}`)
     }
@@ -320,13 +352,13 @@ export default function App() {
           promptLab
         </span>
         <span className="topbar-spacer" />
-        <button className="primary" onClick={() => openModal({ kind: 'newProject' })}>
-          <Plus size={14} />
-          新建项目
-        </button>
         <button onClick={() => store.setSettingsOpen(true)}>
           <Settings size={14} />
           模型设置
+        </button>
+        <button onClick={() => setAboutOpen(true)}>
+          <Info size={14} />
+          关于
         </button>
         <span className="topbar-status">
           <span className={`status-dot ${store.currentProjectId !== null ? '' : 'off'}`} />
@@ -353,6 +385,7 @@ export default function App() {
           fileTree={store.fileTree}
           onSelectProject={selectProject}
           onSelectFile={openFile}
+          onNewProject={() => openModal({ kind: 'newProject' })}
           onNewFile={() => openModal({ kind: 'newFile' })}
           onRename={(path) => openModal({ kind: 'renameFile', path })}
           onDelete={(path) => openModal({ kind: 'deleteFile', path })}
@@ -380,7 +413,14 @@ export default function App() {
             streaming={store.builderStreaming}
             onSend={sendBuilder}
             hint="让工匠帮你写 SKILL.md（需先配置模型）"
-            saveAction={{ label: '写入 SKILL.md', onClick: saveBuilderReplyToSkill }}
+            saveAction={{
+              label: `写入 ${store.currentFilePath?.split('/').pop() ?? 'SKILL.md'}`,
+              onClick: saveBuilderReplyToSkill,
+            }}
+            addToFile={{
+              name: store.currentFilePath?.split('/').pop() ?? 'SKILL.md',
+              onAdd: addSegmentToFile,
+            }}
           />
           <ChatPanel
             title="测试台"
@@ -402,6 +442,25 @@ export default function App() {
         </div>
       </div>
       <SettingsModal open={store.settingsOpen} onClose={() => store.setSettingsOpen(false)} />
+
+      {aboutOpen && (
+        <div className="modal-mask" onClick={() => setAboutOpen(false)}>
+          <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Hammer size={15} color="var(--accent)" />
+              promptLab {APP_VERSION}
+            </h3>
+            <p className="about-desc">
+              造 Skill 的 IDE：让 AI 帮你撰写、测试、调试属于你自己的 AI 助手。
+            </p>
+            <div className="modal-hint">© 2026 朱柘成 · zhecheng.fun</div>
+            <div className="modal-hint">本项目即将在 GitHub 开源，敬请期待。</div>
+            <div className="modal-actions">
+              <button onClick={() => setAboutOpen(false)}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ModalInput
         open={modal?.kind === 'newProject'}

@@ -482,6 +482,48 @@ a.login-btn {
   align-self: center;
   max-width: 100%;
 }
+.msg-segs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.msg-seg {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 5px 8px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.msg-seg:hover {
+  border-color: var(--border-light);
+  background: rgba(255, 255, 255, 0.02);
+}
+.seg-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--accent);
+  background: rgba(91, 140, 255, 0.08);
+  border: 1px solid rgba(91, 140, 255, 0.25);
+  border-radius: 5px;
+  padding: 3px 8px;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s, background 0.15s;
+}
+.msg-seg:hover .seg-add-btn {
+  opacity: 1;
+}
+.seg-add-btn:hover {
+  background: rgba(91, 140, 255, 0.2);
+}
+.about-desc {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+  margin: 4px 0 12px;
+}
 .msg-user,
 .msg-ai {
   border-radius: var(--radius);
