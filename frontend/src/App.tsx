@@ -326,8 +326,9 @@ export default function App() {
           <span className="logo-icon">
             <Hammer size={15} />
           </span>
-          PromptLab
+          promptLab
         </span>
+        <span className="topbar-spacer" />
         <button className="primary" onClick={() => openModal({ kind: 'newProject' })}>
           <Plus size={14} />
           新建项目

@@ -8,11 +8,11 @@ export default function LoginGate() {
           <span className="logo-icon">
             <Hammer size={18} />
           </span>
-          PromptLab
+          promptLab
         </span>
         <h1>请先在个人站登录</h1>
         <p>
-          PromptLab 使用个人站（zhecheng.fun）账号登录。
+          promptLab 使用个人站（zhecheng.fun）账号登录。
           <br />
           登录后回到这里，刷新即可开始制作你的 Skill。
         </p>
