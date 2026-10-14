@@ -102,6 +102,13 @@ export const api = {
     fetch(`${BASE}/api/site-doc`).then((r) =>
       j<{ content: string; published: boolean; updated_at: string }>(r),
     ),
+
+  submitFeedback: (text: string) =>
+    fetch(`${BASE}/api/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: text }),
+    }).then((r) => j<{ ok: boolean }>(r)),
 }
 
 export interface StreamHandlers {

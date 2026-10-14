@@ -356,13 +356,20 @@ a.login-btn {
 }
 .dir-item {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
   padding: 4px 14px 4px 12px;
   font-size: 13px;
   color: var(--text-faint);
   cursor: default;
   user-select: none;
+}
+.dir-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
 }
 .dir-item svg {
   flex-shrink: 0;
@@ -832,6 +839,23 @@ a.login-btn {
   color: var(--text-faint);
   margin-top: 6px;
   line-height: 1.6;
+}
+.feedback-input {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #2c3648;
+  border-radius: 8px;
+  background: #131a27;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.feedback-input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 /* ===== 对话消息内的 markdown 渲染 ===== */

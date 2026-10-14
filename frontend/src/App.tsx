@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { BookOpen, ExternalLink, Hammer, Info, Settings } from 'lucide-react'
+import { BookOpen, ExternalLink, Hammer, Info, MessageSquare, Settings } from 'lucide-react'
 import { api, streamChat } from './api'
 import { useAppStore } from './store'
 import FileTree from './components/FileTree'
@@ -29,6 +29,11 @@ export default function App() {
   const [docOpen, setDocOpen] = useState(false)
   const [docContent, setDocContent] = useState('')
   const [docLoading, setDocLoading] = useState(false)
+  // 问题反馈
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const [feedbackText, setFeedbackText] = useState('')
+  const [feedbackSending, setFeedbackSending] = useState(false)
+  const [feedbackMsg, setFeedbackMsg] = useState('')
   // 模型是否已配置（决定对话框提示是否显示"需先配置模型"）
   const [modelReady, setModelReady] = useState({ builder: false, runner: false })
 
@@ -340,6 +345,22 @@ export default function App() {
     store.setRunnerStreaming(false)
   }
 
+  const submitFeedback = async () => {
+    const text = feedbackText.trim()
+    if (!text || feedbackSending) return
+    setFeedbackSending(true)
+    setFeedbackMsg('')
+    try {
+      await api.submitFeedback(text)
+      setFeedbackMsg('已收到，谢谢反馈！')
+      setFeedbackText('')
+    } catch (e) {
+      setFeedbackMsg(`发送失败：${String(e)}`)
+    } finally {
+      setFeedbackSending(false)
+    }
+  }
+
   const saveBuilderReplyToSkill = async (content: string) => {
     if (!store.currentProjectId) return
     // 优先提取 ```markdown 代码块，没有则整段写入
@@ -406,6 +427,10 @@ export default function App() {
           <Settings size={14} />
           模型设置
         </button>
+        <button onClick={() => setFeedbackOpen(true)}>
+          <MessageSquare size={14} />
+          问题反馈
+        </button>
         <button onClick={() => setAboutOpen(true)}>
           <Info size={14} />
           关于
@@ -462,7 +487,7 @@ export default function App() {
             messages={store.builderMessages}
             streaming={store.builderStreaming}
             onSend={sendBuilder}
-            hint={modelReady.builder ? '让工匠帮你写 SKILL.md' : '让工匠帮你写 SKILL.md（需先配置模型）'}
+            hint={modelReady.builder ? '让工匠帮你撰写项目文档（SKILL.md、规范文档等）' : '让工匠帮你撰写项目文档（SKILL.md、规范文档等，需先配置模型）'}
             saveAction={{
               label: `写入 ${store.currentFilePath?.split('/').pop() ?? 'SKILL.md'}`,
               onClick: saveBuilderReplyToSkill,
@@ -544,6 +569,33 @@ export default function App() {
             <div className="modal-hint">本项目即将在 GitHub 开源，敬请期待。</div>
             <div className="modal-actions">
               <button onClick={() => setAboutOpen(false)}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {feedbackOpen && (
+        <div className="modal-mask" onClick={() => setFeedbackOpen(false)}>
+          <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <MessageSquare size={15} color="var(--accent)" />
+              问题反馈
+            </h3>
+            <textarea
+              className="feedback-input"
+              placeholder="遇到的问题、想加的功能，都可以写在这里…"
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              rows={5}
+            />
+            <div className="modal-hint">{feedbackMsg || '反馈会直接发到作者的站内后台，感谢帮助改进 promptLab！'}</div>
+            <div className="modal-actions">
+              <button onClick={submitFeedback} disabled={feedbackSending || !feedbackText.trim()}>
+                {feedbackSending ? '发送中…' : '发送'}
+              </button>
+              <button onClick={() => setFeedbackOpen(false)} style={{ background: '#555' }}>
+                关闭
+              </button>
             </div>
           </div>
         </div>

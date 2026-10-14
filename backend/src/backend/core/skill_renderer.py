@@ -18,15 +18,17 @@ def strip_comments(text: str) -> str:
     return _COMMENT_RE.sub("", text)
 
 
-def render_runner_prompt(skill_md: str, spec_md: str = "") -> str:
-    """把 SKILL.md（+ 可选规范文档）渲染为 AI2 的系统提示词。"""
-    skill_md = strip_comments(skill_md).strip()
-    spec_md = strip_comments(spec_md).strip()
-    spec_section = spec_md if spec_md else "（无补充细则）"
-    return (
-        RUNNER_BASE_PROMPT
-        + "\n\n【工作指南】\n"
-        + skill_md
-        + "\n\n【补充细则】\n"
-        + spec_section
-    )
+def render_runner_prompt(docs: dict[str, str]) -> str:
+    """把项目的全部 Markdown 文档渲染为 AI2 执行者的系统提示词。
+
+    SKILL.md 作为【工作指南】；其余文档（规范文档、prompt 等）依次作为补充细则。
+    """
+    main = strip_comments(docs.get("SKILL.md", "")).strip()
+    parts = [RUNNER_BASE_PROMPT + "\n\n【工作指南】\n" + (main or "（无）")]
+    for path, content in docs.items():
+        if path == "SKILL.md":
+            continue
+        text = strip_comments(content).strip()
+        if text:
+            parts.append(f"\n\n【{path}】\n{text}")
+    return "".join(parts)

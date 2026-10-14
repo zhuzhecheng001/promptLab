@@ -27,8 +27,10 @@ function renderTree(
     <div key={n.path}>
       {n.type === 'dir' ? (
         <div className="dir-item" style={{ paddingLeft: 12 + depth * 16 }}>
-          <Folder size={14} />
-          {n.name}
+          <div className="dir-name">
+            <Folder size={14} />
+            {n.name}
+          </div>
           {n.children && renderTree(n.children, onSelectFile, onRename, onDelete, depth + 1)}
         </div>
       ) : (

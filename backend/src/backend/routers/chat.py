@@ -48,44 +48,31 @@ def _load_model_config(user_id: int, name: str, use_author: bool = False) -> dic
     return json.loads(raw)
 
 
-def _project_files(project_id: int) -> tuple[str, str]:
-    """读取项目的 SKILL.md 与规范文档（新项目规范文档在 assets/，兼容旧项目根目录）。"""
+def _project_docs(project_id: int) -> dict[str, str]:
+    """读取项目下所有 Markdown 文档（递归），返回 相对路径 -> 内容。"""
     base = PROJECTS_DIR / str(project_id)
-    skill_md = ""
-    spec_md = ""
-    skill_path = base / "SKILL.md"
-    spec_path = base / "assets" / "规范文档.md"
-    if not spec_path.exists():
-        spec_path = base / "规范文档.md"  # 兼容旧项目结构
-    if skill_path.exists():
-        skill_md = skill_path.read_text(encoding="utf-8")
-    if spec_path.exists():
-        spec_md = spec_path.read_text(encoding="utf-8")
-    return skill_md, spec_md
+    if not base.exists():
+        return {}
+    docs: dict[str, str] = {}
+    for p in sorted(base.rglob("*.md")):
+        rel = p.relative_to(base).as_posix()
+        try:
+            docs[rel] = p.read_text(encoding="utf-8")
+        except Exception:
+            continue
+    return docs
 
 
 def _build_context(project_id: int, role: str, skill_file: str | None = None) -> str:
-    """构建系统提示词：工匠带项目文件上下文，执行者用心脏函数渲染。
-
-    AI2 的 skill 跟随左侧选中的文件：选中哪个 .md，AI2 就按哪个工作；
-    选中 SKILL.md（或未选中/非 md）时，加载 SKILL.md + 规范文档。
-    """
-    skill_md, spec_md = _project_files(project_id)
+    """构建系统提示词：工匠 / 执行者都基于当前项目下的全部 Markdown 文档。"""
+    docs = _project_docs(project_id)
     if role == "builder":
-        return (
-            BUILDER_PROMPT
-            + "\n\n【当前项目文件】\nSKILL.md:\n"
-            + (skill_md or "（空）")
-            + "\n\n规范文档.md:\n"
-            + (spec_md or "（空）")
-        )
+        parts = [BUILDER_PROMPT]
+        for path, content in docs.items():
+            parts.append(f"\n\n【{path}】\n{content or '（空）'}")
+        return "".join(parts)
     if role == "runner":
-        if skill_file and skill_file.endswith(".md") and skill_file != "SKILL.md":
-            base = PROJECTS_DIR / str(project_id)
-            chosen = base / skill_file
-            if chosen.exists() and chosen.is_file():
-                return render_runner_prompt(chosen.read_text(encoding="utf-8"), "")
-        return render_runner_prompt(skill_md, spec_md)
+        return render_runner_prompt(docs)
     return ""
 
 

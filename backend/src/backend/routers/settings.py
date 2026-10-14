@@ -85,5 +85,12 @@ def put_model_setting(
     else:
         if not isinstance(body, ModelConfig):
             raise HTTPException(status_code=400, detail="模型配置需传 base_url/api_key/model")
-        set_setting(target, name, body.model_dump_json())
+        cfg = body.model_dump()
+        if not cfg.get("api_key"):
+            # 留空 = 保留已保存的 key，避免把已有 key 覆盖成空
+            existing = get_setting(target, name)
+            if existing:
+                old = json.loads(existing)
+                cfg["api_key"] = old.get("api_key", "")
+        set_setting(target, name, json.dumps(cfg, ensure_ascii=False))
     return {"saved": True, "name": name}
