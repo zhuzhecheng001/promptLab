@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ExternalLink, Hammer, Info, Settings } from 'lucide-react'
+import { BookOpen, ExternalLink, Hammer, Info, Settings } from 'lucide-react'
 import { api, streamChat } from './api'
 import { useAppStore } from './store'
 import FileTree from './components/FileTree'
@@ -25,6 +25,7 @@ export default function App() {
   const store = useAppStore()
   const [modal, setModal] = useState<ModalState>(null)
   const [aboutOpen, setAboutOpen] = useState(false)
+  const [docOpen, setDocOpen] = useState(false)
 
   useEffect(() => {
     // 先验证登录态，成功后再加载项目
@@ -352,6 +353,10 @@ export default function App() {
           promptLab
         </span>
         <span className="topbar-spacer" />
+        <button onClick={() => setDocOpen(true)}>
+          <BookOpen size={14} />
+          使用文档
+        </button>
         <button onClick={() => store.setSettingsOpen(true)}>
           <Settings size={14} />
           模型设置
@@ -442,6 +447,23 @@ export default function App() {
         </div>
       </div>
       <SettingsModal open={store.settingsOpen} onClose={() => store.setSettingsOpen(false)} />
+
+      {docOpen && (
+        <div className="modal-mask" onClick={() => setDocOpen(false)}>
+          <div className="modal modal-wide" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <BookOpen size={16} color="var(--accent)" />
+              使用文档
+            </h3>
+            <div className="doc-body">
+              <div className="doc-empty">文档整理中，敬请期待…</div>
+            </div>
+            <div className="modal-actions">
+              <button onClick={() => setDocOpen(false)}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {aboutOpen && (
         <div className="modal-mask" onClick={() => setAboutOpen(false)}>

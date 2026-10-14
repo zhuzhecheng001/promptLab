@@ -524,6 +524,19 @@ a.login-btn {
   line-height: 1.7;
   margin: 4px 0 12px;
 }
+.doc-body {
+  min-height: 220px;
+  max-height: 60vh;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--text);
+}
+.doc-empty {
+  color: var(--text-faint);
+  text-align: center;
+  padding: 80px 0;
+}
 .msg-user,
 .msg-ai {
   border-radius: var(--radius);
