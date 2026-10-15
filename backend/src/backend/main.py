@@ -8,7 +8,7 @@ from backend.routers import auth, chat, files, projects, settings, site, test_ca
 
 app = FastAPI(
     title="PromptLab Backend",
-    version="0.2.0",
+    version="1.0.0",
     description="一个造 Skill 的 IDE 后端：工匠 / 执行者（用户系统：主站登录）",
 )
 
@@ -34,7 +34,7 @@ app.include_router(site.router)
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "promptlab-backend", "version": "0.2.0"}
+    return {"status": "ok", "service": "promptlab-backend", "version": "1.0.0"}
 
 
 @app.get("/")

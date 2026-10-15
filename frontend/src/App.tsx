@@ -11,7 +11,7 @@ import ModalInput from './components/ModalInput'
 import ModalConfirm from './components/ModalConfirm'
 import LoginGate from './components/LoginGate'
 
-const APP_VERSION = 'v0.1.0'
+const APP_VERSION = 'v1.0.0'
 
 type ModalState =
   | { kind: 'newProject' }

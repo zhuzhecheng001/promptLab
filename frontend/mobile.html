@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>promptLab · 移动端适配中</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    color: var(--text);
+  }
+  .skills-dev { text-align: center; padding: 40px 20px; max-width: 480px; width: 100%; }
+  .skills-badge {
+    width: 96px; height: 96px; margin: 0 auto 24px; border-radius: 28px;
+    background: linear-gradient(135deg, #2563eb, #0d9488);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; font-weight: 800; color: #fff; box-shadow: var(--shadow);
+    letter-spacing: -1px;
+  }
+  .skills-dev h1 { font-size: 26px; font-weight: 800; margin-bottom: 12px; }
+  .skills-dev p { color: var(--muted); font-size: 15px; margin-bottom: 8px; line-height: 1.8; }
+  .skills-dev .tag {
+    display: inline-block; margin-top: 6px; padding: 3px 14px;
+    border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 13px;
+  }
+  .skills-dev .btn {
+    display: inline-block; margin-top: 28px; padding: 8px 18px; border-radius: 999px;
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    font-size: 14px; text-decoration: none; transition: opacity .15s;
+  }
+  .skills-dev .btn:hover { opacity: .85; }
+  .skills-badge { transition: transform .5s ease; }
+  .skills-badge.flip { transform: rotateY(360deg); }
+
+  /* ===== 彩蛋 ===== */
+  #egg-card {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(31, 41, 55, .35); opacity: 0; pointer-events: none;
+    transition: opacity .2s; z-index: 50;
+  }
+  #egg-card.show { opacity: 1; pointer-events: auto; }
+  #egg-card .egg-box {
+    width: min(300px, 82vw); padding: 26px 22px; border-radius: 16px;
+    background: #fff; box-shadow: 0 8px 30px rgba(0, 0, 0, .15);
+    text-align: center; transform: scale(.9); transition: transform .2s;
+  }
+  #egg-card.show .egg-box { transform: scale(1); }
+  #egg-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  #egg-text { font-size: 14px; color: var(--muted); line-height: 1.8; white-space: pre-line; }
+  #egg-close {
+    margin-top: 16px; padding: 7px 18px; border-radius: 999px; border: none;
+    background: var(--accent); color: #fff; font-size: 13px; cursor: pointer;
+  }
+  #egg-toast {
+    position: fixed; left: 50%; bottom: 44px; transform: translateX(-50%) translateY(10px);
+    padding: 10px 16px; border-radius: 999px; background: rgba(31, 41, 55, .92); color: #fff;
+    font-size: 13px; white-space: nowrap; opacity: 0;
+    transition: opacity .2s, transform .2s; z-index: 60;
+  }
+  #egg-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="skills-dev">
+  <div class="skills-badge">Lab</div>
+  <h1>promptLab</h1>
+  <p>移动端适配中，请先使用电脑访问<br>写提示词 · 加规范文档 · 一键测试</p>
+  <span class="tag">移动端适配中</span>
+  <br>
+  <a class="btn" href="https://zhecheng.fun">← 返回主站</a>
+</div>
+
+<!-- 彩蛋浮层 -->
+<div id="egg-card">
+  <div class="egg-box">
+    <div id="egg-title"></div>
+    <div id="egg-text"></div>
+    <button id="egg-close">知道了</button>
+  </div>
+</div>
+<div id="egg-toast"></div>
+
+<script>
+(function () {
+  var COOLDOWN = 8000
+  var lastEgg = 0
+
+  function showCard(title, text) {
+    var now = Date.now()
+    if (now - lastEgg < COOLDOWN) return
+    lastEgg = now
+    document.getElementById('egg-title').textContent = title
+    document.getElementById('egg-text').textContent = text
+    document.getElementById('egg-card').classList.add('show')
+  }
+
+  function showToast(text) {
+    var t = document.getElementById('egg-toast')
+    t.textContent = text
+    t.classList.add('show')
+    clearTimeout(t._tm)
+    t._tm = setTimeout(function () { t.classList.remove('show') }, 2600)
+  }
+
+  var card = document.getElementById('egg-card')
+  card.addEventListener('click', function (e) {
+    if (e.target === card || e.target.id === 'egg-close') card.classList.remove('show')
+  })
+
+  // 彩蛋1：连点徽章 7 次
+  var badge = document.querySelector('.skills-badge')
+  var clicks = 0, badgeTm = null
+  badge.addEventListener('click', function () {
+    clicks++
+    clearTimeout(badgeTm)
+    badgeTm = setTimeout(function () { clicks = 0 }, 1500)
+    if (clicks >= 7) {
+      clicks = 0
+      badge.classList.add('flip')
+      setTimeout(function () { badge.classList.remove('flip') }, 600)
+      showCard('🎉 彩蛋解锁', 'promptLab 移动版正在路上 🚧\n发现彩蛋的都是愿意折腾的人')
+    }
+  })
+
+  // 彩蛋2：摇一摇
+  var shaking = false
+  var motionHandler = function (e) {
+    var a = e.accelerationIncludingGravity
+    if (!a) return
+    var total = Math.abs(a.x) + Math.abs(a.y) + Math.abs(a.z)
+    if (total > 30) {
+      if (!shaking) {
+        shaking = true
+        showCard('📳 摇一摇', '别摇了，摇不出移动版的 🚧\n适配完成会第一时间告诉你')
+      }
+    } else {
+      shaking = false
+    }
+  }
+  function bindMotion() {
+    window.addEventListener('devicemotion', motionHandler, false)
+  }
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    document.addEventListener('click', function once() {
+      DeviceMotionEvent.requestPermission().then(function (state) {
+        if (state === 'granted') bindMotion()
+      }).catch(function () {})
+      document.removeEventListener('click', once)
+    }, false)
+  } else {
+    bindMotion()
+  }
+
+  // 彩蛋3：连点"移动端适配中"标签 3 次
+  var tag = document.querySelector('.skills-dev .tag')
+  var tc = 0, ttm = null
+  tag.addEventListener('click', function () {
+    tc++
+    clearTimeout(ttm)
+    ttm = setTimeout(function () { tc = 0 }, 1200)
+    if (tc >= 3) {
+      tc = 0
+      showCard('🔖 好眼力', '这个标签都被你盯上了\n移动版适配中，别催，在做了 🚧')
+    }
+  })
+
+  // 彩蛋4：横屏提示（旋转瞬间即触发，无需刷新）
+  var lastOrient = 0
+  function fitViewport() {
+    // 用真实视口高度覆盖 100vh（iOS 旋转后 vh 不实时更新的老问题）
+    if (document.body) document.body.style.minHeight = window.innerHeight + 'px'
+  }
+  function checkOrient() {
+    var now = Date.now()
+    if (now - lastOrient < 10000) return
+    if (window.innerHeight < window.innerWidth) {
+      lastOrient = now
+      fitViewport()
+      showToast('📱 横过来了？移动版还在适配中，记得用电脑访问哦')
+    }
+  }
+  function onRotate() {
+    // 旋转后视口尺寸可能要一两帧才稳定，延后一拍再检测
+    requestAnimationFrame(function () {
+      setTimeout(function () { fitViewport(); checkOrient() }, 60)
+    })
+  }
+  window.addEventListener('orientationchange', onRotate, false)
+  window.addEventListener('resize', onRotate, false)
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', onRotate, false)
+  }
+})()
+</script>
+
+</body>
+</html>

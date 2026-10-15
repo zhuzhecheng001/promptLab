@@ -1,0 +1,5 @@
+# Rust 构建产物
+target/
+
+# Node
+node_modules/
