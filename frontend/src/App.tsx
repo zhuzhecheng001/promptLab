@@ -566,7 +566,17 @@ export default function App() {
               造 Skill 的 IDE：让 AI 帮你撰写、测试、调试属于你自己的 AI 助手。
             </p>
             <div className="modal-hint">© 2026 朱柘成 · zhecheng.fun</div>
-            <div className="modal-hint">本项目即将在 GitHub 开源，敬请期待。</div>
+            <div className="modal-hint">
+              开源协议 MIT ·{' '}
+              <a
+                href="https://github.com/zhuzhecheng001/promptLab"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: 'var(--accent)' }}
+              >
+                GitHub 仓库
+              </a>
+            </div>
             <div className="modal-actions">
               <button onClick={() => setAboutOpen(false)}>关闭</button>
             </div>
